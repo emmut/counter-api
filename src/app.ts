@@ -1,4 +1,7 @@
 import express, {Application, Request, Response, NextFunction} from 'express';
+if(process.env.NODE_ENV === 'production') {
+  process.env.NODE_CONFIG_DIR = __dirname + '/config/';
+}
 import config from 'config';
 import { logger } from './utils/logger';
 import { connect } from './utils/connect';
