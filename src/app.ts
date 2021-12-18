@@ -2,7 +2,8 @@ import express, {Application, Request, Response, NextFunction} from 'express';
 import config from 'config';
 import { logger } from './utils/logger';
 import { connect } from './utils/connect';
-import { FolderModel, FolderDocument } from './model/folder.model';
+import { FolderModel } from './model/folder.model';
+import { Error } from 'mongoose';
 
 const app: Application = express();
 
@@ -10,37 +11,52 @@ const port = config.get<number>('port');
 const host = config.get<string>('host');
 
 app.get('/', (req: Request, res: Response, next: NextFunction) => {
-  res.send('hello');
+  res.send('Rest counter v1.0');
 });
 
-app.get('/:folder', async (req: Request, res: Response) => {
-  let prevFolder: FolderDocument | null = null;
+app.get('/:folder([A-z0-9_-]+)', async (req: Request, res: Response) => {
+  let caughtError: Error | string = 'Error';
+  let prevFolder = await FolderModel.findOne(
+    {name: req.params.folder}
+  ) ?? null;
   
-  prevFolder = await FolderModel.findOne({name: req.params.folder}).exec();
+  try {
+    if(prevFolder === null) {
+      const folder = new FolderModel();
+      folder.name = encodeURIComponent(req.params.folder);
+      folder.save();
+      logger.info(`Inserted ${folder.name}`);
+      res.json(folder);
+      return;
+    }
   
-  // TODO: Validate the request
-  // TODO: Prevent multiple concurrent requests
-  if(prevFolder === null) {
-    const folder = new FolderModel();
-    folder.name = encodeURIComponent(req.params.folder);
-    folder.save();
-    res.json(folder);
-    return;
-  }
+    if(prevFolder !== null) {
+      const folderId = prevFolder.folderId;
+      const newCount = prevFolder.count + 1;
+      const folder = await FolderModel.updateOne({folderId: folderId}, {count: newCount});
+      logger.info(`${prevFolder.name} updated at count ${newCount}`);
 
-  if(prevFolder !== null) {
-    const removed = await FolderModel.deleteOne({id: prevFolder.id});
-    // TODO: Handle removal error - removed.deletedCount
-    const newFolder = new FolderModel();
-    newFolder.name = prevFolder.name;
-    newFolder.count = prevFolder.count + 1;
-    newFolder.save();
-    logger.info(`${newFolder.name} saved at count ${newFolder.count}`);
-    res.json(newFolder);
-    return;
-  }
+      const updatedFolder = await FolderModel.findOne({folderId});
+      if(folder.modifiedCount !== 1) {
+        throw new Error('Failed updating count');
+      }
+      if(updatedFolder === null) {
+        throw new Error('Failed fetching updated folder');
+      }
 
-  res.send('error');
+      res.json(updatedFolder);
+      return;
+    }
+  } catch(error) {
+    if(error instanceof Error) {
+      caughtError = error;
+    }
+    logger.error(error);
+  }
+  
+  res.status(500).json({
+    error: caughtError,
+  });
 });
 
 app.listen(port, async () => {
