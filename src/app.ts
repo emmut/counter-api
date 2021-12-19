@@ -1,7 +1,7 @@
 import express, {Application, Request, Response, NextFunction} from 'express';
 import dotenv from 'dotenv';
 dotenv.config();
-import config from 'config';
+import * as config from 'config';
 import { logger } from './utils/logger';
 import { connect } from './utils/connect';
 import { FolderModel } from './model/folder.model';
