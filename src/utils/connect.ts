@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import * as config from "config";
+import config from "config";
 import { logger } from "./logger";
 
 export async function connect() {
