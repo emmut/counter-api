@@ -6,11 +6,14 @@ import { logger } from './utils/logger';
 import { connect } from './utils/connect';
 import { FolderModel } from './model/folder.model';
 import { Error } from 'mongoose';
+import helmet from 'helmet';
 
 const app: Application = express();
 
 const port = config.get<number>('port');
 const host = config.get<string>('host');
+
+app.use(helmet());
 
 app.get('/', (req: Request, res: Response, next: NextFunction) => {
   res.send('Rest counter v1.0');
