@@ -21,6 +21,7 @@ app.get('/', (req: Request, res: Response, next: NextFunction) => {
   res.send('Rest counter v1.0');
 });
 
+
 // Redirect
 app.use((req: Request, res: Response, next: NextFunction) => {
   // If the same query param is sent more than once the redirect will be skipped
@@ -28,9 +29,19 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     res.redirect(req.query.url);
   }
   next();
-})
+});
 
-app.get('/:folder([A-z0-9_-]+)', async (req: Request, res: Response) => {
+// Convert request path to lowercase 
+app.use((req: Request, res: Response, next: NextFunction) => {
+  if (req.path.toLowerCase() !== req.path) {
+    res.redirect(req.path.toLocaleLowerCase());
+    return;
+  } 
+  next();
+});
+
+
+app.get('/:folder([a-z0-9_-]+)', async (req: Request, res: Response) => {
   let caughtError: Error | string = 'Error';
   let prevFolder = await FolderModel.findOne(
     {name: req.params.folder}
@@ -59,7 +70,7 @@ app.get('/:folder([A-z0-9_-]+)', async (req: Request, res: Response) => {
       logger.info(`${prevFolder.name} updated at count ${newCount}`);
 
       const updatedFolder = await FolderModel.findOne({folderId});
-      
+
       if(folder.modifiedCount !== 1) {
         throw new Error('Failed updating count');
       }
