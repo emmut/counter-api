@@ -23,6 +23,7 @@ app.get('/', (req: Request, res: Response, next: NextFunction) => {
 
 // Redirect
 app.use((req: Request, res: Response, next: NextFunction) => {
+  // If the same query param is sent more than once the redirect will be skipped
   if(typeof req.query.url === 'string') {
     res.redirect(req.query.url);
   }
@@ -58,6 +59,7 @@ app.get('/:folder([A-z0-9_-]+)', async (req: Request, res: Response) => {
       logger.info(`${prevFolder.name} updated at count ${newCount}`);
 
       const updatedFolder = await FolderModel.findOne({folderId});
+      
       if(folder.modifiedCount !== 1) {
         throw new Error('Failed updating count');
       }
