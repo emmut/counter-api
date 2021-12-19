@@ -12,6 +12,7 @@ export interface FolderDocument extends FolderInput, Document {
   modifiedAt: Date;
 }
 
+// Folder model
 const folderSchema = new mongoose.Schema({
   folderId: {
     type: String,
