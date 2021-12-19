@@ -1,15 +1,15 @@
-import mongoose, { Document } from "mongoose";
-import { nanoid } from "nanoid";
+import mongoose, { Document } from 'mongoose';
+import { nanoid } from 'nanoid';
 
 export interface FolderInput {
-  folderId: string,
-  name: string,
-  count: number,
+  folderId: string;
+  name: string;
+  count: number;
 }
 
 export interface FolderDocument extends FolderInput, Document {
-  createdAt: Date,
-  modifiedAt: Date,
+  createdAt: Date;
+  modifiedAt: Date;
 }
 
 const folderSchema = new mongoose.Schema({
@@ -28,7 +28,10 @@ const folderSchema = new mongoose.Schema({
     type: Number,
     required: true,
     default: 1,
-  }
+  },
 });
 
-export const FolderModel = mongoose.model<FolderDocument>('folder', folderSchema);
+export const FolderModel = mongoose.model<FolderDocument>(
+  'folder',
+  folderSchema
+);
