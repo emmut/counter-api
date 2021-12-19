@@ -21,6 +21,14 @@ app.get('/', (req: Request, res: Response, next: NextFunction) => {
   res.send('Rest counter v1.0');
 });
 
+// Redirect
+app.use((req: Request, res: Response, next: NextFunction) => {
+  if(typeof req.query.url === 'string') {
+    res.redirect(req.query.url);
+  }
+  next();
+})
+
 app.get('/:folder([A-z0-9_-]+)', async (req: Request, res: Response) => {
   let caughtError: Error | string = 'Error';
   let prevFolder = await FolderModel.findOne(
@@ -28,15 +36,21 @@ app.get('/:folder([A-z0-9_-]+)', async (req: Request, res: Response) => {
   ) ?? null;
   
   try {
+    // Add new folder
     if(prevFolder === null) {
       const folder = new FolderModel();
       folder.name = encodeURIComponent(req.params.folder);
       folder.save();
       logger.info(`Inserted ${folder.name}`);
-      res.json(folder);
-      return;
+
+      // If url is passed the response is already sent
+      if(typeof req.query.url !== 'string') {
+        res.json(folder);
+        return;
+      }
     }
-  
+
+    // Update previous folder
     if(prevFolder !== null) {
       const folderId = prevFolder.folderId;
       const newCount = prevFolder.count + 1;
@@ -51,8 +65,11 @@ app.get('/:folder([A-z0-9_-]+)', async (req: Request, res: Response) => {
         throw new Error('Failed fetching updated folder');
       }
 
-      res.json(updatedFolder);
-      return;
+      // If url is passed the response is already sent
+      if(typeof req.query.url !== 'string') {
+        res.json(updatedFolder);
+        return;
+      }
     }
   } catch(error) {
     if(error instanceof Error) {
@@ -61,9 +78,12 @@ app.get('/:folder([A-z0-9_-]+)', async (req: Request, res: Response) => {
     logger.error(error);
   }
   
-  res.status(500).json({
-    error: caughtError,
-  });
+  // If url is passed the response is already sent
+  if(typeof req.query.url !== 'string') {
+    res.status(500).json({
+      error: caughtError,
+    });
+  }
 });
 
 app.listen(port, async () => {
