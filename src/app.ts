@@ -40,7 +40,10 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
-app.get('/:folder([a-z0-9_-]+)', async (req: Request, res: Response) => {
+app.
+
+
+get('/:folder([a-z0-9_-]+)', async (req: Request, res: Response) => {
   let caughtError: Error | string = 'Error';
   let prevFolder =
     (await FolderModel.findOne({ name: req.params.folder })) ?? null;
