@@ -19,7 +19,9 @@ app.use(helmet());
 app.use(cors());
 
 app.get('/', (req: Request, res: Response) => {
-  res.send('Rest counter v1.0');
+  res.json({
+    message: 'Route Not Found: Please use any other route to start counting',
+  });
 });
 
 // Redirect
