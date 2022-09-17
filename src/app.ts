@@ -51,7 +51,7 @@ app.get('/:folder([a-z0-9_-]+)', async (req: Request, res: Response) => {
       const folder = new FolderModel();
       folder.name = encodeURIComponent(req.params.folder);
       folder.save();
-      logger.info(`Inserted ${folder.name}yar`);
+      logger.info(`Inserted ${folder.name}`);
 
       // If url is passed the response is already sent
       if (typeof req.query.url !== 'string') {
