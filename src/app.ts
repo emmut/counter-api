@@ -78,7 +78,7 @@ app.get('/:folder([a-z0-9_-]+)', async (req: Request, res: Response) => {
         throw new Error('Failed updating count');
       }
       if (updatedFolder === null) {
-        throw new Error('Failed fetchinrg updated folder');
+        throw new Error('Failed fetching updated folder');
       }
 
       // If url is passed the response is already sent
