@@ -24,8 +24,8 @@ jobs:
           node-version: 16.17.0
           cache: 'pnpm'
       - name: Install dependencies
-      - run: pnpm install --frozen-lockfile
+        - run: pnpm install --frozen-lockfile
       - name: Lint files
-      - run: pnpm lint
+        - run: pnpm lint
       - name: Run typescript
-      - run: pnpm tsc --noEmit
+        - run: pnpm tsc --noEmit
